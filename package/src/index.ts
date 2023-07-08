@@ -1,10 +1,14 @@
 #! /usr/bin/env node
 
 import chalk from 'chalk';
-import { spawn } from 'child_process'
+import { exec } from 'child_process'
 
 import yargs from 'yargs/yargs'
 import { hideBin } from 'yargs/helpers'
+
+import type { Args } from './gloabl.types'
+
+import storycap from './storycap'
 
 const argv = yargs(hideBin(process.argv))
     .option('serverCmd', {
@@ -17,9 +21,33 @@ const argv = yargs(hideBin(process.argv))
         type: 'string',
         description: 'URL for storycap'
     })
+    .option('accept', {
+        type: 'boolean',
+        description: 'Accept the regressions and reset the base expectations'
+    })
+    .option('clear', {
+        type: 'boolean',
+        description: 'Clears any build from the current branch'
+    })
+    .option('init', {
+        type: 'boolean',
+        description: 'Sets the initial main build. All visual tests will be compared to this build'
+    })
     .help()
-    .argv
+    .argv as Args
 
+// Clear the .reviz/current folder if we're accepting or clearing a build
+if (argv.accept || argv.clear) {
+    exec('rm -rf .reviz/current', (error) => {
+        if (error) {
+            console.error("Unable to delete current build", error)
+        }
+    })
+
+    if (argv.clear) {
+        process.exit()
+    }
+}
 
 const excludedOptions = ['-v']
 
@@ -31,35 +59,7 @@ const inputtedArgs = process
         (opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)
     ))
 
-// List out the arguments for the command we want to spawn
-const commandArgs = [
-    'storycap',
-    '--serverCmd',
-    'storybook dev -p 9001 --no-open',
-    'http://localhost:9001',
-]
-
-const storycapProcess = spawn('npx', [
-    ...commandArgs,
+storycap.generateBuild(
+    (argv.accept ?? argv.init) ? 'main' : 'current',
     ...inputtedArgs
-])
-
-storycapProcess.stdout.on('data', (data) => {
-    // console.log(`stdout: ${data}`);
-});
-
-storycapProcess.stderr.on('data', (data) => {
-    console.error(`[Storycap] ${data}`);
-});
-
-// Start an interval that prints 'Storycap running...' every second
-let dots = ''
-const interval = setInterval(() => {
-    dots += '.';
-    process.stdout.write(`\rStorycap running${dots}`);
-}, 1000);
-
-storycapProcess.on('close', (code) => {
-    clearInterval(interval)
-    process.stdout.write('\r' + chalk.green(`✓ Storycap complete.`))
-})
+)

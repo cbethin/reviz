@@ -3030,6 +3030,7 @@ __metadata:
   resolution: "@reviz/cli@workspace:package"
   dependencies:
     chalk: 4.1.2
+    rimraf: ^5.0.1
     typescript: ^5.1.6
     yargs: ^17.7.2
   bin:
@@ -15570,7 +15571,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:^5.0.0":
+"rimraf@npm:^5.0.0, rimraf@npm:^5.0.1":
   version: 5.0.1
   resolution: "rimraf@npm:5.0.1"
   dependencies:

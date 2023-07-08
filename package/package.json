@@ -3,7 +3,8 @@
   "packageManager": "yarn@3.6.1",
   "main": "bin/index.js",
   "bin": {
-    "reviz": "bin/index.js"
+    "reviz": "bin/index.js",
+    "rimraf": "rimraf"
   },
   "scripts": {
     "build": "npx tsc --outDir bin"
@@ -13,6 +14,7 @@
   },
   "dependencies": {
     "chalk": "4.1.2",
+    "rimraf": "^5.0.1",
     "yargs": "^17.7.2"
   }
 }

@@ -3,11 +3,12 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-const chalk_1 = __importDefault(require("chalk"));
 const child_process_1 = require("child_process");
 const yargs_1 = __importDefault(require("yargs/yargs"));
 const helpers_1 = require("yargs/helpers");
+const storycap_1 = __importDefault(require("./storycap"));
 const argv = (0, yargs_1.default)((0, helpers_1.hideBin)(process.argv))
     .option('serverCmd', {
     alias: 's',
@@ -19,39 +20,34 @@ const argv = (0, yargs_1.default)((0, helpers_1.hideBin)(process.argv))
     type: 'string',
     description: 'URL for storycap'
 })
+    .option('accept', {
+    type: 'boolean',
+    description: 'Accept the regressions and reset the base expectations'
+})
+    .option('clear', {
+    type: 'boolean',
+    description: 'Clears any build from the current branch'
+})
+    .option('init', {
+    type: 'boolean',
+    description: 'Sets the initial main build. All visual tests will be compared to this build'
+})
     .help()
     .argv;
+if (argv.accept || argv.clear) {
+    (0, child_process_1.exec)('rm -rf .reviz/current', (error) => {
+        if (error) {
+            console.error("Unable to delete current build", error);
+        }
+    });
+    if (argv.clear) {
+        process.exit();
+    }
+}
 const excludedOptions = ['-v'];
 // Get arguments that were inputted via the CLI
 const inputtedArgs = process
     .argv
     .slice(2)
     .filter(arg => !excludedOptions.some((opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)));
-// List out the arguments for the command we want to spawn
-const commandArgs = [
-    'storycap',
-    '--serverCmd',
-    'storybook dev -p 9001 --no-open',
-    'http://localhost:9001',
-];
-console.log({ commandArgs, inputtedArgs });
-const storycapProcess = (0, child_process_1.spawn)('npx', [
-    ...commandArgs,
-    ...inputtedArgs
-]);
-storycapProcess.stdout.on('data', (data) => {
-    // console.log(`stdout: ${data}`);
-});
-storycapProcess.stderr.on('data', (data) => {
-    console.error(`[Storycap] ${data}`);
-});
-// Start an interval that prints 'Storycap running...' every second
-let dots = '';
-const interval = setInterval(() => {
-    dots += '.';
-    process.stdout.write(`\rStorycap running${dots}`);
-}, 1000);
-storycapProcess.on('close', (code) => {
-    clearInterval(interval);
-    process.stdout.write('\r' + chalk_1.default.green(`✓ Storycap complete.`));
-});
+storycap_1.default.generateBuild(((_a = argv.accept) !== null && _a !== void 0 ? _a : argv.init) ? 'main' : 'current', ...inputtedArgs);
