@@ -10,10 +10,12 @@
     "build": "npx tsc --outDir bin"
   },
   "devDependencies": {
+    "@types/looks-same": "^4.1.0",
     "typescript": "^5.1.6"
   },
   "dependencies": {
     "chalk": "4.1.2",
+    "looks-same": "^8.1.0",
     "rimraf": "^5.0.1",
     "yargs": "^17.7.2"
   }

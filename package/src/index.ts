@@ -1,7 +1,7 @@
 #! /usr/bin/env node
-
-import chalk from 'chalk';
-import { exec } from 'child_process'
+import fs from 'fs'
+import path from 'path'
+import { execSync } from 'child_process'
 
 import yargs from 'yargs/yargs'
 import { hideBin } from 'yargs/helpers'
@@ -9,6 +9,9 @@ import { hideBin } from 'yargs/helpers'
 import type { Args } from './gloabl.types'
 
 import storycap from './storycap'
+import imageComparison from './imageComparison';
+import chalk from 'chalk'
+import resetBuilds from './utils/resetBuilds'
 
 const argv = yargs(hideBin(process.argv))
     .option('serverCmd', {
@@ -36,18 +39,37 @@ const argv = yargs(hideBin(process.argv))
     .help()
     .argv as Args
 
-// Clear the .reviz/current folder if we're accepting or clearing a build
-if (argv.accept || argv.clear) {
-    exec('rm -rf .reviz/current', (error) => {
-        if (error) {
-            console.error("Unable to delete current build", error)
-        }
-    })
-
-    if (argv.clear) {
+// Accept a current build by moving the current folder to the main folder
+if (argv.accept) {
+    if (!fs.existsSync('.reviz/current')) {
+        console.error(chalk.red('Error: No build for current branch exists. Build revisions by running `reviz` before accepting.'))
         process.exit()
     }
+
+    try {
+        const mainPath = path.join('.reviz', 'main')
+        const tmpMainPath = path.join('.reviz', 'tmpMain')
+        const currentPath = path.join('.reviz', 'current')
+
+        fs.mkdirSync(tmpMainPath, { recursive: true })
+        fs.renameSync(mainPath, tmpMainPath)
+        fs.renameSync(currentPath, mainPath)
+        fs.rmSync(tmpMainPath, { recursive: true, force: true })
+        resetBuilds(currentPath)
+    } catch(error) {
+        console.error('Error: Unable to accept revisions.', error)
+        process.exit()
+    }
+
+    console.log('✓ Accepted current branch revisions.')
+    process.exit()
 }
+
+if (argv.clear) {
+    resetBuilds()
+    process.exit()
+}
+
 
 const excludedOptions = ['-v']
 
@@ -59,7 +81,10 @@ const inputtedArgs = process
         (opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)
     ))
 
+
 storycap.generateBuild(
     (argv.accept ?? argv.init) ? 'main' : 'current',
     ...inputtedArgs
-)
+).then(() => {
+    imageComparison.compare()
+})
