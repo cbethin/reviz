@@ -9,7 +9,7 @@ const CustomButton = styled.button`
     background-color: lightblue;
     border-radius: 12px;
     padding: 20px;
-    color: white;
+    font-size: 0.8rem;
 
     &:hover {
         filter: brightness(90%);
