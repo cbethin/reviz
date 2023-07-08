@@ -1,7 +1,6 @@
 {
   "name": "example",
   "version": "0.1.0",
-  "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -45,6 +44,7 @@
     ]
   },
   "devDependencies": {
+    "@reviz/cli": "workspace:^",
     "@storybook/addon-essentials": "^7.0.26",
     "@storybook/addon-interactions": "^7.0.26",
     "@storybook/addon-links": "^7.0.26",
@@ -59,6 +59,7 @@
     "eslint-plugin-storybook": "^0.6.12",
     "prop-types": "^15.8.1",
     "storybook": "^7.0.26",
+    "storycap": "^4.1.2",
     "webpack": "^5.88.1"
   }
 }

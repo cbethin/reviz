@@ -7,6 +7,10 @@
   "private": true,
   "packageManager": "yarn@3.6.1",
   "workspaces": [
-    "example"
-  ]
+    "example",
+    "package"
+  ],
+  "scripts": {
+    "build": "yarn workspace @reviz/cli build"
+  }
 }
