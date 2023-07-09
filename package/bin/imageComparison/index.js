@@ -53,7 +53,7 @@ function compareImages(directory = currentBranchFolder) {
                 })
                     .catch((err) => console.warn(`Unable to create regressions visual for ${storyPath}`, err));
                 fs.copyFileSync(currentBranchPath, regressionsPath.replace('.png', '') + '_current.png');
-                fs.copyFileSync(mainBranchPath, regressionsPath.replace('.png', '') + '_master.png');
+                fs.copyFileSync(mainBranchPath, regressionsPath.replace('.png', '') + '_main.png');
                 console.log(chalk.red(`${storyPath} does not match`));
             }
             catch (error) {

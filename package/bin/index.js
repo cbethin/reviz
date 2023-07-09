@@ -19,6 +19,8 @@ const argv = (0, yargs_1.default)((0, helpers_1.hideBin)(process.argv))
     type: 'string',
     description: 'Run server command'
 })
+    .command('dev', '', () => {
+})
     .option('url', {
     alias: 'u',
     type: 'string',
@@ -48,13 +50,11 @@ if (argv.accept) {
         const mainPath = path_1.default.join('.reviz', 'main');
         const tmpMainPath = path_1.default.join('.reviz', 'tmpMain');
         const currentPath = path_1.default.join('.reviz', 'current');
-        const regressionsPath = path_1.default.join('.reviz', 'regressions');
         fs_1.default.mkdirSync(tmpMainPath, { recursive: true });
         fs_1.default.renameSync(mainPath, tmpMainPath);
         fs_1.default.renameSync(currentPath, mainPath);
         fs_1.default.rmSync(tmpMainPath, { recursive: true, force: true });
-        fs_1.default.rmSync(currentPath, { recursive: true, force: true });
-        fs_1.default.rmSync(regressionsPath, { recursive: true, force: true });
+        (0, resetBuilds_1.default)(currentPath);
     }
     catch (error) {
         console.error('Error: Unable to accept revisions.', error);

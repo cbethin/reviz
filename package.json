@@ -9,7 +9,7 @@
   "workspaces": [
     "example",
     "package",
-    "app"
+    "dev/*"
   ],
   "scripts": {
     "build": "yarn workspace @reviz/cli build"

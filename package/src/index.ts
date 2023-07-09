@@ -1,7 +1,6 @@
 #! /usr/bin/env node
 import fs from 'fs'
 import path from 'path'
-import { execSync } from 'child_process'
 
 import yargs from 'yargs/yargs'
 import { hideBin } from 'yargs/helpers'
@@ -18,6 +17,9 @@ const argv = yargs(hideBin(process.argv))
         alias: 's',
         type: 'string',
         description: 'Run server command'
+    })
+    .command('dev', '', () => {
+        
     })
     .option('url', {
         alias: 'u',
