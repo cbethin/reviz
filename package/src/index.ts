@@ -14,8 +14,42 @@ import resetBuilds from './utils/resetBuilds'
 import runDevServer from './runDevServer'
 
 const argv = yargs(hideBin(process.argv))
-    .command('review', '', () => {
-        runDevServer()
+    .command({
+        command: 'review',
+        describe: '',
+        builder: (yargs) => yargs.option('no-open', {
+            type: 'boolean',
+            description: 'Will prevent the browser from automatically opening when the review server is launched',
+        }),
+        handler: (argv) => {
+            runDevServer(!argv.noOpen)
+        }
+    })
+    .command({
+        command: '*', 
+        describe: '', 
+        handler: (argv) => {
+            if (argv.clear || argv.accept) {
+                return
+            }
+
+            const excludedOptions = ['-v']
+
+            // Get arguments that were inputted via the CLI
+            const inputtedArgs = process
+                .argv
+                .slice(2)
+                .filter(arg => !excludedOptions.some(
+                    (opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)
+                ))
+
+            storycap.generateBuild(
+                (argv.accept ?? argv.init) ? 'main' : 'current',
+                ...inputtedArgs
+            )
+                .then(() => imageComparison.compare())
+                .catch(err => console.error('Unable to generate build.', err))
+        }
     })
     .option('serverCmd', {
         alias: 's',
@@ -87,21 +121,3 @@ if (argv['comparisons-only']) {
     .catch(err => console.error('Could not compare images', err))
     .finally(() => process.exit())
 }
-
-const excludedOptions = ['-v']
-
-// Get arguments that were inputted via the CLI
-const inputtedArgs = process
-    .argv
-    .slice(2)
-    .filter(arg => !excludedOptions.some(
-        (opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)
-    ))
-
-storycap.generateBuild(
-    (argv.accept ?? argv.init) ? 'main' : 'current',
-    ...inputtedArgs
-)
-.then(() => imageComparison.compare())
-.catch(err => console.error('Unable to generate build.', err))
-

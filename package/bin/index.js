@@ -3,7 +3,6 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -15,8 +14,35 @@ const chalk_1 = __importDefault(require("chalk"));
 const resetBuilds_1 = __importDefault(require("./utils/resetBuilds"));
 const runDevServer_1 = __importDefault(require("./runDevServer"));
 const argv = (0, yargs_1.default)((0, helpers_1.hideBin)(process.argv))
-    .command('review', '', () => {
-    (0, runDevServer_1.default)();
+    .command({
+    command: 'review',
+    describe: '',
+    builder: (yargs) => yargs.option('no-open', {
+        type: 'boolean',
+        description: 'Will prevent the browser from automatically opening when the review server is launched',
+    }),
+    handler: (argv) => {
+        (0, runDevServer_1.default)(!argv.noOpen);
+    }
+})
+    .command({
+    command: '*',
+    describe: '',
+    handler: (argv) => {
+        var _a;
+        if (argv.clear || argv.accept) {
+            return;
+        }
+        const excludedOptions = ['-v'];
+        // Get arguments that were inputted via the CLI
+        const inputtedArgs = process
+            .argv
+            .slice(2)
+            .filter(arg => !excludedOptions.some((opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)));
+        storycap_1.default.generateBuild(((_a = argv.accept) !== null && _a !== void 0 ? _a : argv.init) ? 'main' : 'current', ...inputtedArgs)
+            .then(() => imageComparison_1.default.compare())
+            .catch(err => console.error('Unable to generate build.', err));
+    }
 })
     .option('serverCmd', {
     alias: 's',
@@ -82,12 +108,3 @@ if (argv['comparisons-only']) {
         .catch(err => console.error('Could not compare images', err))
         .finally(() => process.exit());
 }
-const excludedOptions = ['-v'];
-// Get arguments that were inputted via the CLI
-const inputtedArgs = process
-    .argv
-    .slice(2)
-    .filter(arg => !excludedOptions.some((opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)));
-storycap_1.default.generateBuild(((_a = argv.accept) !== null && _a !== void 0 ? _a : argv.init) ? 'main' : 'current', ...inputtedArgs)
-    .then(() => imageComparison_1.default.compare())
-    .catch(err => console.error('Unable to generate build.', err));

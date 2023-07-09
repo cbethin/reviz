@@ -3059,6 +3059,7 @@ __metadata:
     "@types/looks-same": ^4.1.0
     chalk: 4.1.2
     looks-same: ^8.1.0
+    open: 7.4.2
     rimraf: ^5.0.1
     typescript: ^5.1.6
     yargs: ^17.7.2
@@ -13575,7 +13576,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"open@npm:^7.0.3":
+"open@npm:7.4.2, open@npm:^7.0.3":
   version: 7.4.2
   resolution: "open@npm:7.4.2"
   dependencies:
