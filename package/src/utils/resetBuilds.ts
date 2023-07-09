@@ -4,10 +4,12 @@ import path from 'path'
 
 export default function resetBuilds(
     currentPath = path.join('.reviz', 'current'),
-    regressionsPath = path.join('.reviz', 'regressions')
+    regressionsPath = path.join('.reviz', 'regressions'),
+    summaryPath = path.join('.reviz', 'summary.json')
 ) {
 
     try {
+        fs.rmSync(summaryPath, { force: true })
         fs.rmSync(currentPath, { recursive: true, force: true })
         fs.rmSync(regressionsPath, { recursive: true, force: true })
     } catch (error) {

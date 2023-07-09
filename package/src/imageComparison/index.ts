@@ -1,5 +1,5 @@
 import dottedPrinter from "../utils/dottedPrinter"
-import getFileList, { compileStoryModificationsByType } from "./getFileList"
+import { compileStoryModificationsByType } from "./getFileList"
 
 import fs from 'fs'
 import path from 'path'
@@ -7,7 +7,7 @@ import looksSame from "looks-same"
 import chalk from "chalk"
 
 async function generateImageComparison(currentImage: string, mainImage: string, storyName: string, outputDir: string) {
-    const outputPath = path.join(outputDir, storyName)
+    const outputPath = path.join(outputDir, `${storyName}.png`)
 
     const { equal } = await looksSame(currentImage, mainImage)
 
@@ -41,32 +41,43 @@ async function generateImageComparison(currentImage: string, mainImage: string, 
     console.log(chalk.red(`${storyName} does not match`))
 }
 
+/**
+ * Generates an summary object and writes to summary.json
+ */
+function generateRevizBuildSummary() {
+    const summary = compileStoryModificationsByType()
+
+    const buildSummaryPath = path.resolve('.reviz', 'summary.json')
+
+    fs.writeFileSync(buildSummaryPath, JSON.stringify(summary), 'utf8')
+}
+
 async function createComparisons() {
     const interval = dottedPrinter.print('Comparing current build to main')
 
     // Get files from main & current
-    const storyToFileMap = getFileList('main', 'current')
     const stories = compileStoryModificationsByType()
 
-    for (var story of Object.keys(storyToFileMap.current)) {
+    for (var story of Object.keys(stories.files)) {
         // Get rid of any new/missing story so we only compare images that exist in both branches
         if (stories.missing.includes(story) || stories.new.includes(story)) {
             continue
         }
         
         await generateImageComparison(
-            storyToFileMap.current[story],
-            storyToFileMap.main[story],
+            stories.files[story].current,
+            stories.files[story].main,
             story,
             path.join('.reviz', 'regressions')
         )
     }
+
+    generateRevizBuildSummary()
 
     clearInterval(interval)
     process.stdout.write(chalk.gray('\r✓ Comparisons generated.'))
 }
 
 export default {
-    compare: createComparisons,
-    list: getFileList
+    compare: createComparisons
 }

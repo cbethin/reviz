@@ -15,7 +15,7 @@ const chalk_1 = __importDefault(require("chalk"));
 const resetBuilds_1 = __importDefault(require("./utils/resetBuilds"));
 const runDevServer_1 = __importDefault(require("./runDevServer"));
 const argv = (0, yargs_1.default)((0, helpers_1.hideBin)(process.argv))
-    .command('dev', '', () => {
+    .command('review', '', () => {
     (0, runDevServer_1.default)();
 })
     .option('serverCmd', {

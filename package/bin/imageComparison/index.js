@@ -1,27 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,14 +13,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dottedPrinter_1 = __importDefault(require("../utils/dottedPrinter"));
-const getFileList_1 = __importStar(require("./getFileList"));
+const getFileList_1 = require("./getFileList");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const looks_same_1 = __importDefault(require("looks-same"));
 const chalk_1 = __importDefault(require("chalk"));
 function generateImageComparison(currentImage, mainImage, storyName, outputDir) {
     return __awaiter(this, void 0, void 0, function* () {
-        const outputPath = path_1.default.join(outputDir, storyName);
+        const outputPath = path_1.default.join(outputDir, `${storyName}.png`);
         const { equal } = yield (0, looks_same_1.default)(currentImage, mainImage);
         if (equal) {
             console.log(chalk_1.default.green(`${storyName} matches`));
@@ -69,24 +46,31 @@ function generateImageComparison(currentImage, mainImage, storyName, outputDir) 
         console.log(chalk_1.default.red(`${storyName} does not match`));
     });
 }
+/**
+ * Generates an summary object and writes to summary.json
+ */
+function generateRevizBuildSummary() {
+    const summary = (0, getFileList_1.compileStoryModificationsByType)();
+    const buildSummaryPath = path_1.default.resolve('.reviz', 'summary.json');
+    fs_1.default.writeFileSync(buildSummaryPath, JSON.stringify(summary), 'utf8');
+}
 function createComparisons() {
     return __awaiter(this, void 0, void 0, function* () {
         const interval = dottedPrinter_1.default.print('Comparing current build to main');
         // Get files from main & current
-        const storyToFileMap = (0, getFileList_1.default)('main', 'current');
         const stories = (0, getFileList_1.compileStoryModificationsByType)();
-        for (var story of Object.keys(storyToFileMap.current)) {
+        for (var story of Object.keys(stories.files)) {
             // Get rid of any new/missing story so we only compare images that exist in both branches
             if (stories.missing.includes(story) || stories.new.includes(story)) {
                 continue;
             }
-            yield generateImageComparison(storyToFileMap.current[story], storyToFileMap.main[story], story, path_1.default.join('.reviz', 'regressions'));
+            yield generateImageComparison(stories.files[story].current, stories.files[story].main, story, path_1.default.join('.reviz', 'regressions'));
         }
+        generateRevizBuildSummary();
         clearInterval(interval);
         process.stdout.write(chalk_1.default.gray('\r✓ Comparisons generated.'));
     });
 }
 exports.default = {
-    compare: createComparisons,
-    list: getFileList_1.default
+    compare: createComparisons
 };

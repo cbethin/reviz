@@ -14,7 +14,7 @@ import resetBuilds from './utils/resetBuilds'
 import runDevServer from './runDevServer'
 
 const argv = yargs(hideBin(process.argv))
-    .command('dev', '', () => {
+    .command('review', '', () => {
         runDevServer()
     })
     .option('serverCmd', {
