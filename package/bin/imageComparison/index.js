@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,60 +31,62 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-/* eslint-disable no-console */
-const fs = require('fs');
-const path = require('path');
-const looksSame = require('looks-same');
-const chalk = require('chalk');
-const currentBranchFolder = path.join('.reviz', 'current');
-const mainBranchFolder = path.join('.reviz', 'main');
-const regressionsBranchFolder = path.join('.reviz', 'regressions');
-function compareImages(directory = currentBranchFolder) {
+const dottedPrinter_1 = __importDefault(require("../utils/dottedPrinter"));
+const getFileList_1 = __importStar(require("./getFileList"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+const looks_same_1 = __importDefault(require("looks-same"));
+const chalk_1 = __importDefault(require("chalk"));
+function generateImageComparison(currentImage, mainImage, storyName, outputDir) {
     return __awaiter(this, void 0, void 0, function* () {
-        const files = fs.readdirSync(directory);
-        files.forEach((file) => __awaiter(this, void 0, void 0, function* () {
-            // Note: By default right now we loop through the current branch folder
-            // TODO: Optimize this so it generates a list of paths before comparing
-            const currentBranchPath = path.join(directory, file);
-            const storyPath = currentBranchPath.replace(currentBranchFolder, '');
-            const mainBranchPath = path.join(mainBranchFolder, storyPath);
-            const regressionsPath = path.join(regressionsBranchFolder, storyPath);
-            if (fs.lstatSync(currentBranchPath).isDirectory()) {
-                compareImages(currentBranchPath);
-                return;
+        const outputPath = path_1.default.join(outputDir, storyName);
+        const { equal } = yield (0, looks_same_1.default)(currentImage, mainImage);
+        if (equal) {
+            console.log(chalk_1.default.green(`${storyName} matches`));
+            return;
+        }
+        // Ensure the subfolders in "storybook-regressions" are created if needed
+        const diffSubfolder = path_1.default.dirname(outputPath);
+        if (!fs_1.default.existsSync(diffSubfolder)) {
+            fs_1.default.mkdirSync(diffSubfolder, { recursive: true });
+        }
+        // Create the diff image
+        yield looks_same_1.default
+            .createDiff({
+            current: currentImage,
+            diff: outputPath,
+            highlightColor: '#ff00ff',
+            reference: mainImage,
+            strict: false, // Allow small differences in the images
+        })
+            .catch((err) => console.warn(`Unable to create regressions visual for ${storyName}`, err));
+        fs_1.default.copyFileSync(currentImage, outputPath.replace('.png', '') + '_current.png');
+        fs_1.default.copyFileSync(mainImage, outputPath.replace('.png', '') + '_main.png');
+        console.log(chalk_1.default.red(`${storyName} does not match`));
+    });
+}
+function createComparisons() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const interval = dottedPrinter_1.default.print('Comparing current build to main');
+        // Get files from main & current
+        const storyToFileMap = (0, getFileList_1.default)('main', 'current');
+        const stories = (0, getFileList_1.compileStoryModificationsByType)();
+        for (var story of Object.keys(storyToFileMap.current)) {
+            // Get rid of any new/missing story so we only compare images that exist in both branches
+            if (stories.missing.includes(story) || stories.new.includes(story)) {
+                continue;
             }
-            try {
-                const { equal } = yield looksSame(currentBranchPath, mainBranchPath);
-                if (equal) {
-                    console.log(chalk.green(`${storyPath} matches`));
-                    return;
-                }
-                // Ensure the subfolders in "storybook-regressions" are created if needed
-                const diffSubfolder = path.dirname(regressionsPath);
-                if (!fs.existsSync(diffSubfolder)) {
-                    fs.mkdirSync(diffSubfolder, { recursive: true });
-                }
-                // Create the diff image
-                looksSame
-                    .createDiff({
-                    current: currentBranchPath,
-                    diff: regressionsPath,
-                    highlightColor: '#ff00ff',
-                    reference: mainBranchPath,
-                    strict: false, // Allow small differences in the images
-                })
-                    .catch((err) => console.warn(`Unable to create regressions visual for ${storyPath}`, err));
-                fs.copyFileSync(currentBranchPath, regressionsPath.replace('.png', '') + '_current.png');
-                fs.copyFileSync(mainBranchPath, regressionsPath.replace('.png', '') + '_main.png');
-                console.log(chalk.red(`${storyPath} does not match`));
-            }
-            catch (error) {
-                throw new Error(`Unable to compare ${storyPath}. ${error}`);
-            }
-        }));
+            yield generateImageComparison(storyToFileMap.current[story], storyToFileMap.main[story], story, path_1.default.join('.reviz', 'regressions'));
+        }
+        clearInterval(interval);
+        process.stdout.write(chalk_1.default.gray('\r✓ Comparisons generated.'));
     });
 }
 exports.default = {
-    compare: compareImages
+    compare: createComparisons,
+    list: getFileList_1.default
 };

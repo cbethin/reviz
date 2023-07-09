@@ -17,34 +17,6 @@ const argv = yargs(hideBin(process.argv))
     .command('dev', '', () => {
         runDevServer()
     })
-    .command({
-        command: '*',
-        describe: '',
-        handler: (argv) => {
-            if (argv.clear || argv.accept) {
-                process.exit()
-            }
-            
-            const excludedOptions = ['-v']
-
-            // Get arguments that were inputted via the CLI
-            const inputtedArgs = process
-                .argv
-                .slice(2)
-                .filter(arg => !excludedOptions.some(
-                    (opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)
-                ))
-
-
-            storycap.generateBuild(
-                (argv.accept ?? argv.init) ? 'main' : 'current',
-                ...inputtedArgs
-            ).then(() => {
-                imageComparison.compare()
-            })
-
-        }
-    })
     .option('serverCmd', {
         alias: 's',
         type: 'string',
@@ -62,6 +34,10 @@ const argv = yargs(hideBin(process.argv))
     .option('clear', {
         type: 'boolean',
         description: 'Clears any build from the current branch'
+    })
+    .option('comparisons-only', {
+        type: 'boolean',
+        description: 'Compares based on an existing build. Will not regenerate build'
     })
     .option('init', {
         type: 'boolean',
@@ -100,3 +76,32 @@ if (argv.clear) {
     resetBuilds()
     process.exit()
 }
+
+if (argv['comparisons-only']) {
+    if (!fs.existsSync(path.join('.reviz', 'current'))) {
+        console.error(chalk.red('Uh oh. No current build exists.'))
+        process.exit()
+    }
+
+    imageComparison.compare()
+    .catch(err => console.error('Could not compare images', err))
+    .finally(() => process.exit())
+}
+
+const excludedOptions = ['-v']
+
+// Get arguments that were inputted via the CLI
+const inputtedArgs = process
+    .argv
+    .slice(2)
+    .filter(arg => !excludedOptions.some(
+        (opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)
+    ))
+
+storycap.generateBuild(
+    (argv.accept ?? argv.init) ? 'main' : 'current',
+    ...inputtedArgs
+)
+.then(() => imageComparison.compare())
+.catch(err => console.error('Unable to generate build.', err))
+

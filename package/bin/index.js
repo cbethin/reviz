@@ -3,6 +3,7 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -16,25 +17,6 @@ const runDevServer_1 = __importDefault(require("./runDevServer"));
 const argv = (0, yargs_1.default)((0, helpers_1.hideBin)(process.argv))
     .command('dev', '', () => {
     (0, runDevServer_1.default)();
-})
-    .command({
-    command: '*',
-    describe: '',
-    handler: (argv) => {
-        var _a;
-        if (argv.clear || argv.accept) {
-            process.exit();
-        }
-        const excludedOptions = ['-v'];
-        // Get arguments that were inputted via the CLI
-        const inputtedArgs = process
-            .argv
-            .slice(2)
-            .filter(arg => !excludedOptions.some((opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)));
-        storycap_1.default.generateBuild(((_a = argv.accept) !== null && _a !== void 0 ? _a : argv.init) ? 'main' : 'current', ...inputtedArgs).then(() => {
-            imageComparison_1.default.compare();
-        });
-    }
 })
     .option('serverCmd', {
     alias: 's',
@@ -53,6 +35,10 @@ const argv = (0, yargs_1.default)((0, helpers_1.hideBin)(process.argv))
     .option('clear', {
     type: 'boolean',
     description: 'Clears any build from the current branch'
+})
+    .option('comparisons-only', {
+    type: 'boolean',
+    description: 'Compares based on an existing build. Will not regenerate build'
 })
     .option('init', {
     type: 'boolean',
@@ -87,3 +73,21 @@ if (argv.clear) {
     (0, resetBuilds_1.default)();
     process.exit();
 }
+if (argv['comparisons-only']) {
+    if (!fs_1.default.existsSync(path_1.default.join('.reviz', 'current'))) {
+        console.error(chalk_1.default.red('Uh oh. No current build exists.'));
+        process.exit();
+    }
+    imageComparison_1.default.compare()
+        .catch(err => console.error('Could not compare images', err))
+        .finally(() => process.exit());
+}
+const excludedOptions = ['-v'];
+// Get arguments that were inputted via the CLI
+const inputtedArgs = process
+    .argv
+    .slice(2)
+    .filter(arg => !excludedOptions.some((opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)));
+storycap_1.default.generateBuild(((_a = argv.accept) !== null && _a !== void 0 ? _a : argv.init) ? 'main' : 'current', ...inputtedArgs)
+    .then(() => imageComparison_1.default.compare())
+    .catch(err => console.error('Unable to generate build.', err));

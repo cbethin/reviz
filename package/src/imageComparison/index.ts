@@ -1,74 +1,72 @@
-/* eslint-disable no-console */
-const fs = require('fs')
-const path = require('path')
-const looksSame = require('looks-same')
-const chalk = require('chalk')
+import dottedPrinter from "../utils/dottedPrinter"
+import getFileList, { compileStoryModificationsByType } from "./getFileList"
 
-const currentBranchFolder = path.join('.reviz', 'current')
-const mainBranchFolder = path.join('.reviz', 'main')
-const regressionsBranchFolder = path.join('.reviz', 'regressions')
+import fs from 'fs'
+import path from 'path'
+import looksSame from "looks-same"
+import chalk from "chalk"
 
-async function compareImages(directory: string = currentBranchFolder) {
-    const files = fs.readdirSync(directory)
+async function generateImageComparison(currentImage: string, mainImage: string, storyName: string, outputDir: string) {
+    const outputPath = path.join(outputDir, storyName)
 
-    files.forEach(async file => {
-        // Note: By default right now we loop through the current branch folder
-        // TODO: Optimize this so it generates a list of paths before comparing
-        const currentBranchPath = path.join(directory, file)
-        const storyPath = currentBranchPath.replace(currentBranchFolder, '')
+    const { equal } = await looksSame(currentImage, mainImage)
 
-        const mainBranchPath = path.join(
-            mainBranchFolder,
-            storyPath,
+    if (equal) {
+        console.log(chalk.green(`${storyName} matches`))
+        return
+    }
+
+    // Ensure the subfolders in "storybook-regressions" are created if needed
+    const diffSubfolder = path.dirname(outputPath)
+    if (!fs.existsSync(diffSubfolder)) {
+        fs.mkdirSync(diffSubfolder, { recursive: true })
+    }
+
+    // Create the diff image
+    await looksSame
+        .createDiff({
+            current: currentImage,
+            diff: outputPath,
+            highlightColor: '#ff00ff', // Customize the color if needed
+            reference: mainImage,
+            strict: false, // Allow small differences in the images
+        })
+        .catch((err) =>
+            console.warn(`Unable to create regressions visual for ${storyName}`, err),
         )
-        const regressionsPath = path.join(
-            regressionsBranchFolder,
-            storyPath,
+
+    fs.copyFileSync(currentImage, outputPath.replace('.png', '') + '_current.png')
+    fs.copyFileSync(mainImage, outputPath.replace('.png', '') + '_main.png')
+
+    console.log(chalk.red(`${storyName} does not match`))
+}
+
+async function createComparisons() {
+    const interval = dottedPrinter.print('Comparing current build to main')
+
+    // Get files from main & current
+    const storyToFileMap = getFileList('main', 'current')
+    const stories = compileStoryModificationsByType()
+
+    for (var story of Object.keys(storyToFileMap.current)) {
+        // Get rid of any new/missing story so we only compare images that exist in both branches
+        if (stories.missing.includes(story) || stories.new.includes(story)) {
+            continue
+        }
+        
+        await generateImageComparison(
+            storyToFileMap.current[story],
+            storyToFileMap.main[story],
+            story,
+            path.join('.reviz', 'regressions')
         )
+    }
 
-        if (fs.lstatSync(currentBranchPath).isDirectory()) {
-            compareImages(currentBranchPath)
-            return
-        }
-
-        try {
-            const { equal } = await looksSame(currentBranchPath, mainBranchPath)
-
-            if (equal) {
-                console.log(chalk.green(`${storyPath} matches`))
-                return
-            }
-
-            // Ensure the subfolders in "storybook-regressions" are created if needed
-            const diffSubfolder = path.dirname(regressionsPath)
-            if (!fs.existsSync(diffSubfolder)) {
-                fs.mkdirSync(diffSubfolder, { recursive: true })
-            }
-
-            // Create the diff image
-            looksSame
-                .createDiff({
-                    current: currentBranchPath,
-                    diff: regressionsPath,
-                    highlightColor: '#ff00ff', // Customize the color if needed
-                    reference: mainBranchPath,
-                    strict: false, // Allow small differences in the images
-                })
-                .catch((err) =>
-                    console.warn(`Unable to create regressions visual for ${storyPath}`, err),
-                )
-
-            fs.copyFileSync(currentBranchPath, regressionsPath.replace('.png', '') + '_current.png')
-            fs.copyFileSync(mainBranchPath, regressionsPath.replace('.png', '') + '_main.png')
-
-            console.log(chalk.red(`${storyPath} does not match`))
-        } catch(error) {
-            throw new Error(`Unable to compare ${storyPath}. ${error}`)
-        }
-    })
-
+    clearInterval(interval)
+    process.stdout.write(chalk.gray('\r✓ Comparisons generated.'))
 }
 
 export default {
-    compare: compareImages
+    compare: createComparisons,
+    list: getFileList
 }
