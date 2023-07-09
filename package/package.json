@@ -14,6 +14,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "@reviz/dev-server": "workspace:^",
     "chalk": "4.1.2",
     "looks-same": "^8.1.0",
     "rimraf": "^5.0.1",

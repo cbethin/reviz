@@ -3055,6 +3055,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@reviz/cli@workspace:package"
   dependencies:
+    "@reviz/dev-server": "workspace:^"
     "@types/looks-same": ^4.1.0
     chalk: 4.1.2
     looks-same: ^8.1.0

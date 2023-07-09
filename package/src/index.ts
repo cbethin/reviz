@@ -11,15 +11,44 @@ import storycap from './storycap'
 import imageComparison from './imageComparison';
 import chalk from 'chalk'
 import resetBuilds from './utils/resetBuilds'
+import runDevServer from './runDevServer'
 
 const argv = yargs(hideBin(process.argv))
+    .command('dev', '', () => {
+        runDevServer()
+    })
+    .command({
+        command: '*',
+        describe: '',
+        handler: (argv) => {
+            if (argv.clear || argv.accept) {
+                process.exit()
+            }
+            
+            const excludedOptions = ['-v']
+
+            // Get arguments that were inputted via the CLI
+            const inputtedArgs = process
+                .argv
+                .slice(2)
+                .filter(arg => !excludedOptions.some(
+                    (opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)
+                ))
+
+
+            storycap.generateBuild(
+                (argv.accept ?? argv.init) ? 'main' : 'current',
+                ...inputtedArgs
+            ).then(() => {
+                imageComparison.compare()
+            })
+
+        }
+    })
     .option('serverCmd', {
         alias: 's',
         type: 'string',
         description: 'Run server command'
-    })
-    .command('dev', '', () => {
-        
     })
     .option('url', {
         alias: 'u',
@@ -58,7 +87,7 @@ if (argv.accept) {
         fs.renameSync(currentPath, mainPath)
         fs.rmSync(tmpMainPath, { recursive: true, force: true })
         resetBuilds(currentPath)
-    } catch(error) {
+    } catch (error) {
         console.error('Error: Unable to accept revisions.', error)
         process.exit()
     }
@@ -71,22 +100,3 @@ if (argv.clear) {
     resetBuilds()
     process.exit()
 }
-
-
-const excludedOptions = ['-v']
-
-// Get arguments that were inputted via the CLI
-const inputtedArgs = process
-    .argv
-    .slice(2)
-    .filter(arg => !excludedOptions.some(
-        (opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)
-    ))
-
-
-storycap.generateBuild(
-    (argv.accept ?? argv.init) ? 'main' : 'current',
-    ...inputtedArgs
-).then(() => {
-    imageComparison.compare()
-})

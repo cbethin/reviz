@@ -35,16 +35,24 @@ async function getFilePaths(dirPath) {
 
 app.get('/image-list', async (req, res) => {
     try {
-        let imageFiles = await getFilePaths(imagesDirectory);
+        let imageFiles = (await getFilePaths(imagesDirectory))
+            .map(
+                file => file.replace(imagesDirectory, '')
+            )
+            .filter(
+                file => !file.includes('_main') && !file.includes('_current')
+            )
+                
+        let storyNames = Array.from(new Set(imageFiles.map(
+            file => file
+                .replace('.png', '')
+                .replace('_current', '')
+                .replace('_main', '')
+        )))
+
         res.json({
             files: imageFiles,
-            stories: Array.from(new Set(imageFiles.map(
-                file => file
-                    .replace(imagesDirectory, '')
-                    .replace('.png', '')
-                    .replace('_current', '')
-                    .replace('_main', '')
-            )))
+            stories: storyNames
         });
     } catch (err) {
         console.error(err);
@@ -59,7 +67,6 @@ app.get('/images/*', (req, res) => {
     const fullPath = path.resolve(filePath);
     const relativePath = path.relative(imagesDirectory, fullPath);
     
-    console.log({ relativePath, imagesDirectory })
     res.sendFile(relativePath, { root: imagesDirectory }, (err) => {
         if (err) {
             console.error(err);
