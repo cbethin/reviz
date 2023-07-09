@@ -3,7 +3,7 @@
   "packageManager": "yarn@3.6.1",
   "main": "build/index.js",
   "scripts": {
-    "build": "rimraf build && yarn tsc --outDir build && yarn workspace @reviz/dev-app build && mkdir build/app && cp -r ../app/build ./build/app"
+    "build": "rimraf build && yarn tsc --outDir build && mkdir build/app && cp -r ../app/build ./build/app"
   },
   "bin": {
     "reviz-dev-server": "build/index.js"

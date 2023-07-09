@@ -7,7 +7,7 @@
     "rimraf": "rimraf"
   },
   "scripts": {
-    "build": "npx tsc --outDir bin"
+    "build": "npx tsc --outDir bin && echo \"Completed CLI build.\""
   },
   "devDependencies": {
     "@types/looks-same": "^4.1.0",
