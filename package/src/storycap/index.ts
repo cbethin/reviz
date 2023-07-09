@@ -1,5 +1,8 @@
 import { spawn } from 'child_process'
 import chalk from "chalk";
+import fs from 'fs'
+import path from 'path'
+import getFileList, { compileStoryModificationsByType } from '../imageComparison/getFileList';
 
 function generateBuild(outputDir: string, ...args: string[]) {
     return new Promise<void>((resolve) => {
@@ -38,11 +41,28 @@ function generateBuild(outputDir: string, ...args: string[]) {
             process.stdout.clearLine(0)
             process.stdout.cursorTo(0)
             process.stdout.write(chalk.gray(`\r✓ Build complete.\n`))
+
+            generateBuiltImagesList()
             resolve()
         })
     })
 }
 
+function generateBuiltImagesList() {
+    const storyToFileMap = getFileList('main', 'current')
+    const stories = compileStoryModificationsByType()
+
+    const output = {
+        builtStories: storyToFileMap,
+        storyRegressions: stories
+    }
+
+    const buildSummaryPath = path.resolve('.reviz', 'summary.json')
+
+    fs.writeFileSync(buildSummaryPath, JSON.stringify(output), 'utf8')
+}
+
 export default {
-    generateBuild
+    generateBuild,
+    generateBuiltImagesList
 }
