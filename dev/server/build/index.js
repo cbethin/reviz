@@ -29,7 +29,6 @@ app.get('/stories-list', (req, res) => __awaiter(void 0, void 0, void 0, functio
 app.get('/images/*', (req, res) => {
     const imagePath = req.params[0]; // Get the path after '/images/'
     const resolvedPath = path_1.default.resolve(imagePath);
-    console.log({ resolvedPath, imagePath });
     if (!fs_1.default.existsSync(imagePath)) {
         res.status(500);
         return;

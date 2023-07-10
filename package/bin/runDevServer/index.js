@@ -18,11 +18,11 @@ const open_1 = __importDefault(require("open"));
 function default_1(openBrowser = true) {
     return new Promise((resolve) => {
         const devServer = (0, child_process_1.spawn)('reviz-dev-server');
+        if (openBrowser) {
+            (0, open_1.default)('http://localhost:3001');
+        }
         devServer.stdout.on('data', (data) => __awaiter(this, void 0, void 0, function* () {
             console.log(`[Reviz Dev Server] ${data}`);
-            if (openBrowser) {
-                (0, open_1.default)('http://localhost:3001');
-            }
         }));
         devServer.stderr.on('data', (data) => {
             console.error(`[Reviz Dev Server] ${data}`);

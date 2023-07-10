@@ -75,7 +75,7 @@ async function createComparisons() {
     generateRevizBuildSummary()
 
     clearInterval(interval)
-    process.stdout.write(chalk.gray('\r✓ Comparisons generated.'))
+    process.stdout.write(chalk.gray('\r✓ Comparisons generated.\n'))
 }
 
 export default {

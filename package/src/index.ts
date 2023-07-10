@@ -7,6 +7,8 @@ import { hideBin } from 'yargs/helpers'
 
 import type { Args } from './gloabl.types'
 
+import { exec } from 'child_process'
+
 import storycap from './storycap'
 import imageComparison from './imageComparison';
 import chalk from 'chalk'
@@ -48,6 +50,11 @@ const argv = yargs(hideBin(process.argv))
                 ...inputtedArgs
             )
                 .then(() => imageComparison.compare())
+                .then(() => {
+                    if (argv.review) {
+                        runDevServer()
+                    }
+                })
                 .catch(err => console.error('Unable to generate build.', err))
         }
     })
@@ -76,6 +83,10 @@ const argv = yargs(hideBin(process.argv))
     .option('init', {
         type: 'boolean',
         description: 'Sets the initial main build. All visual tests will be compared to this build'
+    })
+    .option('review', {
+        type: 'boolean',
+        description: 'Opens review server once build is complete'
     })
     .help()
     .argv as Args

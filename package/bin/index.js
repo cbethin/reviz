@@ -41,6 +41,11 @@ const argv = (0, yargs_1.default)((0, helpers_1.hideBin)(process.argv))
             .filter(arg => !excludedOptions.some((opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)));
         storycap_1.default.generateBuild(((_a = argv.accept) !== null && _a !== void 0 ? _a : argv.init) ? 'main' : 'current', ...inputtedArgs)
             .then(() => imageComparison_1.default.compare())
+            .then(() => {
+            if (argv.review) {
+                (0, runDevServer_1.default)();
+            }
+        })
             .catch(err => console.error('Unable to generate build.', err));
     }
 })
@@ -69,6 +74,10 @@ const argv = (0, yargs_1.default)((0, helpers_1.hideBin)(process.argv))
     .option('init', {
     type: 'boolean',
     description: 'Sets the initial main build. All visual tests will be compared to this build'
+})
+    .option('review', {
+    type: 'boolean',
+    description: 'Opens review server once build is complete'
 })
     .help()
     .argv;

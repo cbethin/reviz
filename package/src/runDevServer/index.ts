@@ -6,11 +6,12 @@ export default function(openBrowser: boolean = true) {
     return new Promise<void>((resolve) => {
         const devServer = spawn('reviz-dev-server')
 
+        if (openBrowser) {
+            open('http://localhost:3001')
+        }
+
         devServer.stdout.on('data', async (data) => {
             console.log(`[Reviz Dev Server] ${data}`);
-            if (openBrowser) {
-                open('http://localhost:3001')
-            }
         });
 
         devServer.stderr.on('data', (data) => {

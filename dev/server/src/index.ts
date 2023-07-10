@@ -25,8 +25,6 @@ app.get('/images/*', (req, res) => {
     
     const resolvedPath = path.resolve(imagePath)
 
-    console.log({ resolvedPath, imagePath })
-
     if (!fs.existsSync(imagePath)) {
         res.status(500)
         return

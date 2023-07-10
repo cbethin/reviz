@@ -68,7 +68,7 @@ function createComparisons() {
         }
         generateRevizBuildSummary();
         clearInterval(interval);
-        process.stdout.write(chalk_1.default.gray('\r✓ Comparisons generated.'));
+        process.stdout.write(chalk_1.default.gray('\r✓ Comparisons generated.\n'));
     });
 }
 exports.default = {
