@@ -1,37 +1,123 @@
-import { useEffect, useState } from 'react';
-import './App.css';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import useStories from './hooks/useStories';
 
-function App() {
-  const [filenames, setFileNames] = useState<string[]>([])
-  const [stories, setStories] = useState<string[]>([])
+const GridContainer = styled.div`
+  display: grid;
+  grid-template-areas: 
+    'header header header'
+    'sidebar content content';
+  grid-template-rows: 50px auto;
+  grid-template-columns: 200px 1fr;
+  height: 100vh;
+
+  @media (max-width: 768px) {
+    grid-template-areas: 
+      'header header header'
+      'content content content';
+    grid-template-columns: 1fr;
+  }
+`;
+
+const Header = styled.header`
+  grid-area: header;
+  background-color: #ececec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const Sidebar = styled.div`
+  padding: 12px;
+  grid-area: sidebar;
+  background-color: #ddd;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const MainContent = styled.div`
+  padding: 12px;
+  grid-area: content;
+  background-color: #bbb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
+const SideBarItem = styled.p<{ selected?: boolean; selectable?: boolean }>`
+  margin: 0px 0px 4px;
+  padding: 10px;
+  border-radius: 12px;
+  text-wrap: wrap;
+  word-wrap: break-word;
+  max-width: 100%;
+
+  ${({ selected }) => selected && 'backdrop-filter: brightness(92.5%);'}
   
-  useEffect(() => {
-    fetch('/image-list', { cache: 'no-store' })
-      .then(res => res.json())
-      .then(data => {
-        console.log(data)
-        setFileNames(data.files)
-        setStories(data.stories)
-      })
-  }, [])
-  
+  ${({ selectable }) => selectable && `
+    &:hover {
+      backdrop-filter: brightness(90%);
+      cursor: pointer;
+    }
+  `}
+`
+
+const StyledImage = styled.img`
+  max-width: 100%;
+  max-height: calc(100vh - 150px);
+  object-fit: contain;
+`;
+
+const App = () => {
+  const { stories, utils: storyUtils } = useStories()
+  const [selectedStory, selectStory] = useState('')
+
+  const selectedStoryImage = storyUtils.getImageUrl(selectedStory)
+
   return (
-    <div className="App">
-      <h3>Stories</h3>
-      {
-        stories.length === 0 &&
-        <p>No stories to review.</p>
-      }
-      {
-        filenames.map(filename => (
-          <>
-            <p>{stories.find(story => filename.includes(story))}</p>
-            <img src={`/images/${filename}`} style={{ width: '40%' }} alt='Diff image' />
-          </>
-        ))
-      }
-    </div>
-  );
+    <GridContainer>
+      <Header>Reviz</Header>
+      <Sidebar>
+        <SideBarItem
+          style={{ fontSize: '1.25rem', fontWeight: '700' }}
+        >
+          Changed Components
+        </SideBarItem>
+        {
+          stories && Object.keys(stories.files).map(
+            story => 
+              <SideBarItem 
+                selected={selectedStory === story}
+                selectable
+                onClick={() => selectStory(story)}
+              >
+                {story}
+              </SideBarItem>
+          )
+        }
+      </Sidebar>
+      <MainContent>
+        {
+          !selectedStory && 'Select a story to see the changes'
+        }
+        {
+          storyUtils.isMissingOnThisBranch(selectedStory) && '*Missing*'
+        }
+        {
+          storyUtils.isNewOnThisBranch(selectedStory) && '*New*'
+        }
+        {
+          selectedStoryImage &&
+          <StyledImage src={`/images/${selectedStoryImage}`} />
+        }
+      </MainContent>
+    </GridContainer>
+  )
 }
 
 export default App;

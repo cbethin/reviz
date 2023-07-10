@@ -4,6 +4,10 @@
         "build": {
             "outputs": ["build/**", "dist/**", "bin/**"],
             "dependsOn": ["^build"]
+        },
+        "serve": {
+            "cache": false,
+            "dependsOn": ["build"]
         }
     }
 }
