@@ -1,6 +1,8 @@
 name: Reviz Tests
 
-on: [push, pull_request]
+on: 
+  push:
+  pull_request: [main]
 
 jobs:
   reviz:
