@@ -27,7 +27,7 @@ jobs:
         working-directory: example
         run: yarn reviz
 
-      - name: Upload Artifact
+      - name: Uploade Artifact
         uses: actions/upload-artifact@v2
         with:
           name: reviz-output
@@ -39,13 +39,7 @@ jobs:
         shell: bash
 
       - name: Post Comment with Build Artifacts
-        uses: actions/github-script@v5
+        uses: mshick/add-pr-comment@v2
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: 'You can download the Reviz artifacts [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})'
-            })
+          message: |
+            You can download the Reviz artifacts [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
