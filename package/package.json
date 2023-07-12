@@ -4,10 +4,11 @@
   "main": "bin/index.js",
   "bin": {
     "reviz": "bin/index.js",
+    "reviz-dev-server": "bin/dev-server/index.js",
     "rimraf": "rimraf"
   },
   "scripts": {
-    "build": "npx tsc --outDir bin && echo \"Completed CLI build.\""
+    "build": "rimraf bin && npx tsc --outDir bin && mkdir bin/dev-server && cp -r ../node_modules/@reviz/dev-server/bin/* bin/dev-server"
   },
   "devDependencies": {
     "@types/looks-same": "^4.1.0",

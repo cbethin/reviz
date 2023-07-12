@@ -3,7 +3,7 @@
   "packageManager": "yarn@3.6.1",
   "main": "build/index.js",
   "scripts": {
-    "build": "rimraf build && yarn tsc --outDir build && mkdir build/app && cp -r ../app/build ./build/app",
+    "build": "rimraf bin && yarn tsc --outDir bin && mkdir bin/app && cp -r ../app/build ./bin/app",
     "serve": "node build/index.js"
   },
   "bin": {

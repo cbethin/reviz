@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+#! /usr/bin/env node
 
 import express from 'express'
 import fs from 'fs'
