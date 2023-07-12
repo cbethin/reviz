@@ -3,6 +3,7 @@ node_modules
 .yarn/*
 !.yarn/cache
 !.yarn/releases
+!.yarn/plugins
 
 .reviz
 !.reviz/main
