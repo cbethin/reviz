@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chalk_1 = __importDefault(require("chalk"));
 const child_process_1 = require("child_process");
 const open_1 = __importDefault(require("open"));
+const readline_1 = __importDefault(require("readline"));
 function default_1(openBrowser = true) {
     return new Promise((resolve) => {
         const devServer = (0, child_process_1.spawn)('reviz-dev-server');
@@ -28,6 +29,8 @@ function default_1(openBrowser = true) {
             console.error(`[Reviz Dev Server] ${data}`);
         });
         devServer.on('close', (code) => {
+            readline_1.default.clearLine(process.stdout, 0);
+            readline_1.default.cursorTo(process.stdout, 0, 1);
             process.stdout.clearLine(0);
             process.stdout.cursorTo(0);
             process.stdout.write(chalk_1.default.gray(`\r✓ Build complete.`));
