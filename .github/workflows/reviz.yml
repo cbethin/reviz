@@ -2,7 +2,9 @@ name: Reviz Tests
 
 on: 
   push:
-  pull_request: [main]
+    branches:
+      - main
+  pull_reuest:
 
 jobs:
   reviz:
