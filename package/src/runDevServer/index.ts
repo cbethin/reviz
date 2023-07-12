@@ -22,8 +22,6 @@ export default function(openBrowser: boolean = true) {
         devServer.on('close', (code) => {
             readline.clearLine(process.stdout, 0)
             readline.cursorTo(process.stdout, 0, 1)
-            process.stdout.clearLine(0)
-            process.stdout.cursorTo(0)
             process.stdout.write(chalk.gray(`\r✓ Build complete.`))
             resolve()
         })

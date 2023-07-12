@@ -1,5 +1,6 @@
 import { spawn } from 'child_process'
 import chalk from "chalk";
+import readline from 'readline'
 
 function generateBuild(outputDir: string, ...args: string[]) {
     return new Promise<void>((resolve) => {
@@ -35,8 +36,8 @@ function generateBuild(outputDir: string, ...args: string[]) {
 
         storycapProcess.on('close', (code) => {
             clearInterval(interval)
-            process.stdout.clearLine(0)
-            process.stdout.cursorTo(0)
+            readline.clearLine(process.stdout, 0)
+            readline.cursorTo(process.stdout, 0, 1)
             process.stdout.write(chalk.gray(`\r✓ Build complete.\n`))
 
             resolve()
