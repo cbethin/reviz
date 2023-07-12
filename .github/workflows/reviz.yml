@@ -19,6 +19,9 @@ jobs:
 
       - name: Install dependencies
         run: 'yarn'
+
+      - name: Build
+        run: yarn turbo build
       
       - name: Run reviz
         working-directory: example

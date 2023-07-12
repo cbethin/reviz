@@ -31,8 +31,6 @@ function default_1(openBrowser = true) {
         devServer.on('close', (code) => {
             readline_1.default.clearLine(process.stdout, 0);
             readline_1.default.cursorTo(process.stdout, 0, 1);
-            process.stdout.clearLine(0);
-            process.stdout.cursorTo(0);
             process.stdout.write(chalk_1.default.gray(`\r✓ Build complete.`));
             resolve();
         });
