@@ -15,7 +15,7 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
-          cache: 'yarn'
+          cache: yarn
 
       - name: Install dependencies
         run: yarn
@@ -23,3 +23,20 @@ jobs:
       - name: Run reviz
         working-directory: example
         run: yarn reviz
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: reviz-output
+        path: ./.reviz
+  
+    - name: Get PR number
+      id: pr
+      run: echo "::set-output name=number::$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")"
+      shell: bash
+
+    - name: Post Comment
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh pr comment "${{ steps.pr.outputs.number }}" --body "You can download the Reviz artifacts [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
