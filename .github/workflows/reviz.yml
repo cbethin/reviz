@@ -18,7 +18,7 @@ jobs:
           cache: yarn
 
       - name: Install dependencies
-        run: yarn
+        run: 'yarn'
       
       - name: Run reviz
         working-directory: example
