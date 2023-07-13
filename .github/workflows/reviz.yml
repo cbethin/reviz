@@ -22,6 +22,10 @@ jobs:
 
       - name: Build
         run: yarn turbo build
+
+      - name: Build Storybook
+        working-directory: example
+        run: yarn build-storybook
       
       - name: Run reviz
         working-directory: example
