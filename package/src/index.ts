@@ -94,6 +94,7 @@ const argv = yargs(hideBin(process.argv))
 
 openAndScreenshotAStory()
 .then(() => console.log('Done'))
+.finally(() => process.exit())
 
 // Accept a current build by moving the current folder to the main folder
 if (argv.accept) {
