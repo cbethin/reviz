@@ -2,11 +2,9 @@ import { chromium, devices } from "playwright";
 
 async function openAndScreenshotAStory() {
     // Setup
-    const browser = await chromium.launch({
-        headless: false
-    });
+    const browser = await chromium.launch()
     const context = await browser.newContext(devices['Desktop Chrome'])
-    const page = await context.newPage();
+    const page = await context.newPage()
 
     // The actual interesting bit
     await context.route('**.jpg', route => route.abort());
