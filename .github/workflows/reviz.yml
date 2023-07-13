@@ -25,7 +25,7 @@ jobs:
       
       - name: Run reviz
         working-directory: example
-        run: yarn reviz
+        run: yarn reviz --clear
 
       - name: Uploade Artifact
         uses: actions/upload-artifact@v2
