@@ -1,13 +1,11 @@
 import path from 'path'
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
 
-export default function startHttpServer() {
-    const storybookStaticPath = path.resolve('./storybook-static')
-
+export default function startHttpServer(storybookBuildPath: string) {
     return new Promise<ChildProcessWithoutNullStreams>(resolve => {
         const args = [
             'http-server',
-            storybookStaticPath,
+            storybookBuildPath,
             '-p',
             '6006'
         ]

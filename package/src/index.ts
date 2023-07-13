@@ -7,16 +7,23 @@ import { hideBin } from 'yargs/helpers'
 
 import type { Args } from './gloabl.types'
 
-import { exec } from 'child_process'
-
-import storycap from './storycap'
 import imageComparison from './imageComparison';
 import chalk from 'chalk'
 import resetBuilds from './utils/resetBuilds'
 import runDevServer from './runDevServer'
-import openAndScreenshotAStory from './playwright'
+import screenshotStories from './screenshotStories'
 
 const argv = yargs(hideBin(process.argv))
+    .command({
+        command: 'init',
+        describe: 'Initializes a Reviz build',
+        handler: () => {
+            screenshotStories('main')
+                .then(() => console.log('✓ Reviz initialized'))
+                .catch(err => console.error('Unable to initialize.', err))
+                .finally(() => process.exit())
+        }
+    })
     .command({
         command: 'review',
         describe: '',
@@ -46,10 +53,7 @@ const argv = yargs(hideBin(process.argv))
                     (opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)
                 ))
 
-            storycap.generateBuild(
-                (argv.accept ?? argv.init) ? 'main' : 'current',
-                ...inputtedArgs
-            )
+            screenshotStories('current')
                 .then(() => imageComparison.compare())
                 .then(() => {
                     if (argv.review) {
@@ -92,10 +96,6 @@ const argv = yargs(hideBin(process.argv))
     .help()
     .argv as Args
 
-openAndScreenshotAStory()
-.then(() => console.log('Done'))
-.finally(() => process.exit())
-
 // Accept a current build by moving the current folder to the main folder
 if (argv.accept) {
     if (!fs.existsSync('.reviz/current')) {
@@ -124,7 +124,7 @@ if (argv.accept) {
 
 if (argv.clear) {
     resetBuilds()
-    // process.exit()
+    process.exit()
 }
 
 if (argv['comparisons-only']) {
