@@ -3060,6 +3060,7 @@ __metadata:
     chalk: 4.1.2
     looks-same: ^8.1.0
     open: 7.4.2
+    playwright: ^1.36.0
     readline: ^1.3.0
     rimraf: ^5.0.1
     typescript: ^5.1.6
@@ -14024,6 +14025,26 @@ __metadata:
   dependencies:
     find-up: ^3.0.0
   checksum: 5bac346b7c7c903613c057ae3ab722f320716199d753f4a7d053d38f2b5955460f3e6ab73b4762c62fd3e947f58e04f1343e92089e7bb6091c90877406fcd8c8
+  languageName: node
+  linkType: hard
+
+"playwright-core@npm:1.36.0":
+  version: 1.36.0
+  resolution: "playwright-core@npm:1.36.0"
+  bin:
+    playwright-core: cli.js
+  checksum: d6b5fed5ae95238dc36a1be3e2cfd250221810e6a2d20592c29d7044a2d1f96e8e6cfff83d937605b6e26d7c3058231d16784e17979fbb11208880829e406e85
+  languageName: node
+  linkType: hard
+
+"playwright@npm:^1.36.0":
+  version: 1.36.0
+  resolution: "playwright@npm:1.36.0"
+  dependencies:
+    playwright-core: 1.36.0
+  bin:
+    playwright: cli.js
+  checksum: c49ed1666b28f8b9177f4682b51e0bc77a83d32265725bc29a8210c0fe83a92e1f1b7051e315a7299fa39c6e952eebe0fe80a22c174569636a27a5a737b3aef4
   languageName: node
   linkType: hard
 

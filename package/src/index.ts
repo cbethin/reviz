@@ -14,6 +14,7 @@ import imageComparison from './imageComparison';
 import chalk from 'chalk'
 import resetBuilds from './utils/resetBuilds'
 import runDevServer from './runDevServer'
+import openAndScreenshotAStory from './playwright'
 
 const argv = yargs(hideBin(process.argv))
     .command({
@@ -91,6 +92,9 @@ const argv = yargs(hideBin(process.argv))
     .help()
     .argv as Args
 
+openAndScreenshotAStory()
+.then(() => console.log('Done'))
+
 // Accept a current build by moving the current folder to the main folder
 if (argv.accept) {
     if (!fs.existsSync('.reviz/current')) {
@@ -119,7 +123,7 @@ if (argv.accept) {
 
 if (argv.clear) {
     resetBuilds()
-    process.exit()
+    // process.exit()
 }
 
 if (argv['comparisons-only']) {
