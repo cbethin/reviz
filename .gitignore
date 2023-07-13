@@ -9,3 +9,7 @@ node_modules
 !.reviz/main
 
 .turbo
+
+bin
+build
+dist
