@@ -1,14 +1,12 @@
 import { chromium, devices } from "playwright"
-import { spawn } from 'child_process'
+import startHttpServer from "./startHttpServer"
 
 async function openAndScreenshotAStory() {
-    // Start storybook 
-    let webServer = spawn('npx', 'http-server ./storybook-static -p 6006'.split(' '))
 
-    webServer.on('message', data => console.log(data))
+    const webServer = await startHttpServer()
 
-    webServer.on('error', data => console.error)
-    
+    console.log('Web server started')
+
     // Setup
     const browser = await chromium.launch()
     const context = await browser.newContext(devices['Desktop Chrome'])
@@ -17,7 +15,7 @@ async function openAndScreenshotAStory() {
     await page.waitForTimeout(3000)
     
     // The actual interesting bit
-    await page.goto('http://localhost:6006/iframe.html?viewMode=story&id=components-button--another-one');
+    await page.goto('http://localhost:6006/iframe.html?viewMode=story&id=components-button--basic');
     await page.waitForSelector('#storybook-root')
 
 
@@ -26,6 +24,8 @@ async function openAndScreenshotAStory() {
     // Teardown
     await context.close()
     await browser.close()
+
+    webServer.kill()
 }
 
 export default openAndScreenshotAStory
