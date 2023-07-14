@@ -43,20 +43,9 @@ const argv = yargs(hideBin(process.argv))
                 return
             }
 
-            const excludedOptions = ['-v']
-
-            // Get arguments that were inputted via the CLI
-            const inputtedArgs = process
-                .argv
-                .slice(2)
-                .filter(arg => !excludedOptions.some(
-                    (opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)
-                ))
-
             screenshotStories('current')
                 .then(() => imageComparison.compare())
                 .then((summary) => {
-
                     if (argv.review) {
                         runDevServer()
                     } else {

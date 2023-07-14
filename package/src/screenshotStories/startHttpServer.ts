@@ -1,5 +1,6 @@
 import path from 'path'
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
+import log from '../utils/log'
 
 export default function startHttpServer(storybookBuildPath: string) {
     return new Promise<ChildProcessWithoutNullStreams>(resolve => {
@@ -18,6 +19,8 @@ export default function startHttpServer(storybookBuildPath: string) {
             }
         })
 
-        webServer.stderr.on('error', data => process.stderr.write('Error:' + data))
+        webServer.stderr.on('data', data => {
+            log.error(`Error found on storybook server: ${data}`,)
+        })
     })
 }

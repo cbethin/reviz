@@ -5,6 +5,7 @@ import fs from 'fs'
 import path from 'path'
 import looksSame from "looks-same"
 import chalk from "chalk"
+import log from "../utils/log"
 
 async function generateImageComparison(currentImage: string, mainImage: string, storyName: string, outputDir: string) {
     const outputPath = path.join(outputDir, `${storyName}.png`)
@@ -12,7 +13,7 @@ async function generateImageComparison(currentImage: string, mainImage: string, 
     const { equal } = await looksSame(currentImage, mainImage)
 
     if (equal) {
-        console.log(chalk.green(`${storyName} matches`))
+        log.info(`${storyName} matches`)
         return
     }
 
@@ -38,7 +39,7 @@ async function generateImageComparison(currentImage: string, mainImage: string, 
     fs.copyFileSync(currentImage, outputPath.replace('.png', '') + '_current.png')
     fs.copyFileSync(mainImage, outputPath.replace('.png', '') + '_main.png')
 
-    console.log(chalk.red(`${storyName} does not match`))
+    log.warning(`${storyName} does not match`)
 }
 
 /**
