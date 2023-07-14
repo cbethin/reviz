@@ -5,7 +5,7 @@ export default {
     title: 'Components/Button',
     component: Button,
     args: {
-        text: ''
+        text: 'Click me.'
     }
 } as Meta<typeof Button>
 

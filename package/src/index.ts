@@ -55,7 +55,14 @@ const argv = yargs(hideBin(process.argv))
 
             screenshotStories('current')
                 .then(() => imageComparison.compare())
-                .then(() => {
+                .then((summary) => {
+                    if (summary.new.length !== 0 || 
+                        summary.missing.length !== 0 || 
+                        summary.existingWithRegressions.length !== 0
+                    ) {
+                        process.exit(1)
+                    }
+
                     if (argv.review) {
                         runDevServer()
                     }
@@ -134,6 +141,15 @@ if (argv['comparisons-only']) {
     }
 
     imageComparison.compare()
+    .then((summary) => {
+        if (
+            summary.new.length !== 0 ||
+            summary.missing.length !== 0 ||
+            summary.existingWithRegressions.length !== 0
+        ) {
+            process.exit(1)
+        }
+    })
     .catch(err => console.error('Could not compare images', err))
     .finally(() => process.exit())
 }

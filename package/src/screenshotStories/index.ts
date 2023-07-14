@@ -23,7 +23,6 @@ async function openAndScreenshotStory(
     url: (storyId: string) => string = createDefaultUrl
 ) {
 
-    console.log('Screenshotting:', storyId)
     const storyUrl = url(storyId)
     const outputPath = path.join(outputDirectory, `${storyPath}.png`)
 

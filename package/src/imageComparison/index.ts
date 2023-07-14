@@ -50,6 +50,8 @@ function generateRevizBuildSummary() {
     const buildSummaryPath = path.resolve('.reviz', 'summary.json')
 
     fs.writeFileSync(buildSummaryPath, JSON.stringify(summary), 'utf8')
+
+    return summary
 }
 
 async function createComparisons() {
@@ -72,10 +74,12 @@ async function createComparisons() {
         )
     }
 
-    generateRevizBuildSummary()
+    const summary = generateRevizBuildSummary()
 
     clearInterval(interval)
-    process.stdout.write(chalk.gray('\r✓ Comparisons generated.\n'))
+    process.stdout.write(chalk.gray('\rComparisons generated.\n'))
+
+    return summary
 }
 
 export default {
