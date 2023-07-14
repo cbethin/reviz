@@ -58,7 +58,7 @@ async function screenshotStories(outputDirectory: 'main' | 'current') {
     log.info(`Found ${storybook.storyIds.length} stories.`)
 
     const webServer = await startHttpServer(storybookStaticPath)
-    log.info('Web server started')
+    log.info('Storybook server started')
 
     // Setup
     const browser = await chromium.launch()
@@ -81,7 +81,7 @@ async function screenshotStories(outputDirectory: 'main' | 'current') {
 
     webServer.kill()
 
-    console.log(chalk.gray(`✓ Build complete.`))
+    log.info(chalk.gray(`✓ Snapshots complete.`))
 }
 
 export default screenshotStories

@@ -39,12 +39,12 @@ const argv = yargs(hideBin(process.argv))
         command: '*', 
         describe: '', 
         handler: (argv) => {
-            if (argv.clear || argv.accept) {
+            if (argv.clear || argv.accept || argv.comparisonsOnly) {
                 return
             }
 
             resetBuilds()
-            
+
             screenshotStories('current')
                 .then(() => imageComparison.compare())
                 .then((summary) => {
