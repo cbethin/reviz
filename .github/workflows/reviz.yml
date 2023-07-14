@@ -30,7 +30,7 @@ jobs:
       
       - name: Run reviz
         working-directory: example
-        run: yarn reviz --clear
+        run: yarn reviz
 
       - name: Uploade Artifact
         uses: actions/upload-artifact@v2
