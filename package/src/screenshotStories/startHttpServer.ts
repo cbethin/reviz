@@ -26,6 +26,8 @@ export default function startHttpServer(storybookBuildPath: string) {
         webServer.on('close', (statusCode) => {
             if (statusCode !== 0) {
                 log.error(`Failed to start storybook server. ${errorOutputs.join(' ')}`)
+            } else {
+                log.info('Closed Storybook server')
             }
         })
     })

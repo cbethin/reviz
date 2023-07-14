@@ -22,7 +22,7 @@ export default function(openBrowser: boolean = true) {
         devServer.on('close', (code) => {
             readline.clearLine(process.stdout, 0)
             readline.cursorTo(process.stdout, 0, 1)
-            process.stdout.write(chalk.gray(`\r✓ Build complete.`))
+            process.stdout.write(chalk.gray(`✓ Build complete.`))
             resolve()
         })
     })
