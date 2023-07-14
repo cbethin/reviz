@@ -33,6 +33,7 @@ jobs:
         run: yarn reviz
 
       - name: Upload Artifact
+        if: success() || failure()
         uses: actions/upload-artifact@v2
         with:
           name: reviz-output
