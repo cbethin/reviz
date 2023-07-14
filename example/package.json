@@ -58,7 +58,6 @@
     "eslint-plugin-storybook": "^0.6.12",
     "prop-types": "^15.8.1",
     "storybook": "^7.0.26",
-    "storycap": "^4.1.2",
     "webpack": "^5.88.1"
   }
 }
