@@ -55,7 +55,10 @@ async function screenshotStories(outputDirectory: 'main' | 'current') {
 
     // Setup
     const browser = await chromium.launch()
-    const context = await browser.newContext(devices['Desktop Chrome'])
+    const context = await browser.newContext({
+        ...devices['Desktop Chrome'],
+        deviceScaleFactor: 2
+    })
     
     await Promise.all(storybook.storyIds.map(story => openAndScreenshotStory(
         context,
