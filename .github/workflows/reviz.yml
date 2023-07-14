@@ -19,7 +19,10 @@ jobs:
           cache: yarn
 
       - name: Install dependencies
-        run: 'yarn'
+        run: yarn
+
+      - name: Setup Turbo cache
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
 
       - name: Build
         run: yarn turbo build
