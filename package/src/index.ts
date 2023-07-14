@@ -43,6 +43,8 @@ const argv = yargs(hideBin(process.argv))
                 return
             }
 
+            resetBuilds()
+            
             screenshotStories('current')
                 .then(() => imageComparison.compare())
                 .then((summary) => {

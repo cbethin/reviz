@@ -13,14 +13,20 @@ export default function startHttpServer(storybookBuildPath: string) {
 
         let webServer = spawn('npx', args)
 
+        const errorOutputs = []
+
         webServer.stdout.on('data', data => {
             if (data.includes('Hit CTRL-C to stop the server')) {
                 resolve(webServer)
             }
         })
 
-        webServer.stderr.on('data', data => {
-            log.error(`Error found on storybook server: ${data}`,)
+        webServer.stderr.on('data', data => errorOutputs.push(data))
+
+        webServer.on('close', (statusCode) => {
+            if (statusCode !== 0) {
+                log.error(`Failed to start storybook server. ${errorOutputs.join(' ')}`)
+            }
         })
     })
 }

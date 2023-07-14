@@ -10,7 +10,7 @@ import log from "../utils/log"
 async function generateImageComparison(currentImage: string, mainImage: string, storyName: string, outputDir: string) {
     const outputPath = path.join(outputDir, `${storyName}.png`)
 
-    const { equal } = await looksSame(currentImage, mainImage)
+    const { equal } = await looksSame(currentImage, mainImage, { tolerance: 30 })
 
     if (equal) {
         log.info(`${storyName} matches`)
@@ -31,6 +31,7 @@ async function generateImageComparison(currentImage: string, mainImage: string, 
             highlightColor: '#ff00ff', // Customize the color if needed
             reference: mainImage,
             strict: false, // Allow small differences in the images
+            tolerance: 30
         })
         .catch((err) =>
             console.warn(`Unable to create regressions visual for ${storyName}`, err),

@@ -81,7 +81,7 @@ async function screenshotStories(outputDirectory: 'main' | 'current') {
 
     webServer.kill()
 
-    log.info(`✓ Build complete.`)
+    console.log(chalk.gray(`✓ Build complete.`))
 }
 
 export default screenshotStories
