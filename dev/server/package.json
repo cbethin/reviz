@@ -1,0 +1,23 @@
+{
+  "name": "@reviz/dev-server",
+  "packageManager": "yarn@3.6.1",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "rimraf bin && yarn tsc --outDir bin && mkdir bin/app && cp -r ../app/build ./bin/app",
+    "serve": "node build/index.js"
+  },
+  "bin": {
+    "reviz-dev-server": "build/index.js"
+  },
+  "dependencies": {
+    "@reviz/dev-app": "workspace:^",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "nodemon": "^3.0.1",
+    "rimraf": "^5.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  }
+}

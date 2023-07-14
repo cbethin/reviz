@@ -1,0 +1,27 @@
+{
+  "name": "@reviz/cli",
+  "packageManager": "yarn@3.6.1",
+  "main": "bin/index.js",
+  "bin": {
+    "reviz": "bin/index.js",
+    "reviz-dev-server": "bin/dev-server/index.js",
+    "rimraf": "rimraf"
+  },
+  "scripts": {
+    "build": "rimraf bin && npx tsc --outDir bin && mkdir bin/dev-server && cp -r ../node_modules/@reviz/dev-server/bin/* bin/dev-server"
+  },
+  "devDependencies": {
+    "@types/looks-same": "^4.1.0",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@reviz/dev-server": "workspace:^",
+    "chalk": "4.1.2",
+    "looks-same": "^8.1.0",
+    "open": "7.4.2",
+    "playwright": "^1.36.0",
+    "readline": "^1.3.0",
+    "rimraf": "^5.0.1",
+    "yargs": "^17.7.2"
+  }
+}
