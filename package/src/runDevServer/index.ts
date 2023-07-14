@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import { spawn } from 'child_process'
 import open from 'open'
+import readline from 'readline'
 
 export default function(openBrowser: boolean = true) {
     return new Promise<void>((resolve) => {
@@ -19,9 +20,9 @@ export default function(openBrowser: boolean = true) {
         });
 
         devServer.on('close', (code) => {
-            process.stdout.clearLine(0)
-            process.stdout.cursorTo(0)
-            process.stdout.write(chalk.gray(`\r✓ Build complete.`))
+            readline.clearLine(process.stdout, 0)
+            readline.cursorTo(process.stdout, 0, 1)
+            process.stdout.write(chalk.gray(`✓ Build complete.`))
             resolve()
         })
     })

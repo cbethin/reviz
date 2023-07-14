@@ -7,15 +7,24 @@ import { hideBin } from 'yargs/helpers'
 
 import type { Args } from './gloabl.types'
 
-import { exec } from 'child_process'
-
-import storycap from './storycap'
 import imageComparison from './imageComparison';
 import chalk from 'chalk'
 import resetBuilds from './utils/resetBuilds'
 import runDevServer from './runDevServer'
+import screenshotStories from './screenshotStories'
+import log from './utils/log'
 
 const argv = yargs(hideBin(process.argv))
+    .command({
+        command: 'init',
+        describe: 'Initializes a Reviz build',
+        handler: () => {
+            screenshotStories('main')
+                .then(() => console.log('✓ Reviz initialized'))
+                .catch(err => console.error('Unable to initialize.', err))
+                .finally(() => process.exit())
+        }
+    })
     .command({
         command: 'review',
         describe: '',
@@ -31,31 +40,33 @@ const argv = yargs(hideBin(process.argv))
         command: '*', 
         describe: '', 
         handler: (argv) => {
-            if (argv.clear || argv.accept) {
+            if (argv.clear || argv.accept || argv.comparisonsOnly) {
                 return
             }
 
-            const excludedOptions = ['-v']
+            resetBuilds()
 
-            // Get arguments that were inputted via the CLI
-            const inputtedArgs = process
-                .argv
-                .slice(2)
-                .filter(arg => !excludedOptions.some(
-                    (opt) => arg.startsWith(`--${opt}`) || arg.startsWith(`-${opt}`)
-                ))
-
-            storycap.generateBuild(
-                (argv.accept ?? argv.init) ? 'main' : 'current',
-                ...inputtedArgs
-            )
+            screenshotStories('current')
                 .then(() => imageComparison.compare())
-                .then(() => {
+                .then((summary) => {
                     if (argv.review) {
                         runDevServer()
+                    } else {
+                        if (summary.new.length !== 0 ||
+                            summary.missing.length !== 0 ||
+                            summary.existingWithRegressions.length !== 0
+                        ) {
+                            log.error('At least one story failed to match.')
+                            process.exit(1)
+                        } else {
+                            process.exit()
+                        }
                     }
                 })
-                .catch(err => console.error('Unable to generate build.', err))
+                .catch(err => {
+                    log.error('Unable to generate build.', err)
+                    process.exit(1)
+                })
         }
     })
     .option('serverCmd', {
@@ -129,6 +140,15 @@ if (argv['comparisons-only']) {
     }
 
     imageComparison.compare()
+    .then((summary) => {
+        if (
+            summary.new.length !== 0 ||
+            summary.missing.length !== 0 ||
+            summary.existingWithRegressions.length !== 0
+        ) {
+            process.exit(1)
+        }
+    })
     .catch(err => console.error('Could not compare images', err))
     .finally(() => process.exit())
 }

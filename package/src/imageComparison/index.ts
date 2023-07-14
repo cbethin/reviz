@@ -5,14 +5,15 @@ import fs from 'fs'
 import path from 'path'
 import looksSame from "looks-same"
 import chalk from "chalk"
+import log from "../utils/log"
 
 async function generateImageComparison(currentImage: string, mainImage: string, storyName: string, outputDir: string) {
     const outputPath = path.join(outputDir, `${storyName}.png`)
 
-    const { equal } = await looksSame(currentImage, mainImage)
+    const { equal } = await looksSame(currentImage, mainImage, { tolerance: 30 })
 
     if (equal) {
-        console.log(chalk.green(`${storyName} matches`))
+        log.info(`${storyName} matches`)
         return
     }
 
@@ -30,6 +31,7 @@ async function generateImageComparison(currentImage: string, mainImage: string, 
             highlightColor: '#ff00ff', // Customize the color if needed
             reference: mainImage,
             strict: false, // Allow small differences in the images
+            tolerance: 30
         })
         .catch((err) =>
             console.warn(`Unable to create regressions visual for ${storyName}`, err),
@@ -38,7 +40,7 @@ async function generateImageComparison(currentImage: string, mainImage: string, 
     fs.copyFileSync(currentImage, outputPath.replace('.png', '') + '_current.png')
     fs.copyFileSync(mainImage, outputPath.replace('.png', '') + '_main.png')
 
-    console.log(chalk.red(`${storyName} does not match`))
+    log.warning(`${storyName} does not match`)
 }
 
 /**
@@ -50,6 +52,8 @@ function generateRevizBuildSummary() {
     const buildSummaryPath = path.resolve('.reviz', 'summary.json')
 
     fs.writeFileSync(buildSummaryPath, JSON.stringify(summary), 'utf8')
+
+    return summary
 }
 
 async function createComparisons() {
@@ -72,10 +76,12 @@ async function createComparisons() {
         )
     }
 
-    generateRevizBuildSummary()
+    const summary = generateRevizBuildSummary()
 
     clearInterval(interval)
-    process.stdout.write(chalk.gray('\r✓ Comparisons generated.\n'))
+    log.info(chalk.gray('✓ Comparisons generated.'))
+
+    return summary
 }
 
 export default {

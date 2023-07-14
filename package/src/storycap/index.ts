@@ -1,5 +1,6 @@
 import { spawn } from 'child_process'
 import chalk from "chalk";
+import readline from 'readline'
 
 function generateBuild(outputDir: string, ...args: string[]) {
     return new Promise<void>((resolve) => {
@@ -19,26 +20,17 @@ function generateBuild(outputDir: string, ...args: string[]) {
         ])
 
         storycapProcess.stdout.on('data', (data) => {
-            // console.log(`stdout: ${data}`);
+            process.stdout.write(chalk.gray(`[Storycap] ${data}`))
         });
 
         storycapProcess.stderr.on('data', (data) => {
-            console.error(`[Storycap] ${data}`);
+            process.stderr.write(chalk.red(`[Storycap] ${data}`))
         });
 
-        // Start an interval that prints 'Storycap running...' every second
-        let dots = ''
-        const interval = setInterval(() => {
-            dots += '.';
-            process.stdout.write(`\rBuilding components${dots}`);
-        }, 1000);
+        console.log('Building components')
 
         storycapProcess.on('close', (code) => {
-            clearInterval(interval)
-            process.stdout.clearLine(0)
-            process.stdout.cursorTo(0)
-            process.stdout.write(chalk.gray(`\r✓ Build complete.\n`))
-
+            console.log(`✓ Build complete.`)
             resolve()
         })
     })
