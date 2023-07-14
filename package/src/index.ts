@@ -56,15 +56,16 @@ const argv = yargs(hideBin(process.argv))
             screenshotStories('current')
                 .then(() => imageComparison.compare())
                 .then((summary) => {
-                    if (summary.new.length !== 0 || 
-                        summary.missing.length !== 0 || 
-                        summary.existingWithRegressions.length !== 0
-                    ) {
-                        process.exit(1)
-                    }
 
                     if (argv.review) {
                         runDevServer()
+                    } else {
+                        if (summary.new.length !== 0 ||
+                            summary.missing.length !== 0 ||
+                            summary.existingWithRegressions.length !== 0
+                        ) {
+                            process.exit(1)
+                        }
                     }
                 })
                 .catch(err => console.error('Unable to generate build.', err))
