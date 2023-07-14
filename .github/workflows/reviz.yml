@@ -41,14 +41,3 @@ jobs:
         with:
           name: reviz-output
           path: ./example/.reviz
-    
-      - name: Get PR number
-        id: pr
-        run: echo "::set-output name=number::$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")"
-        shell: bash
-
-      - name: Post Comment with Build Artifacts
-        uses: mshick/add-pr-comment@v2
-        with:
-          message: |
-            You can download the Reviz artifacts [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})

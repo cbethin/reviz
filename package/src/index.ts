@@ -12,6 +12,7 @@ import chalk from 'chalk'
 import resetBuilds from './utils/resetBuilds'
 import runDevServer from './runDevServer'
 import screenshotStories from './screenshotStories'
+import log from './utils/log'
 
 const argv = yargs(hideBin(process.argv))
     .command({
@@ -55,11 +56,17 @@ const argv = yargs(hideBin(process.argv))
                             summary.missing.length !== 0 ||
                             summary.existingWithRegressions.length !== 0
                         ) {
+                            log.error('At least one story failed to match.')
                             process.exit(1)
+                        } else {
+                            process.exit()
                         }
                     }
                 })
-                .catch(err => console.error('Unable to generate build.', err))
+                .catch(err => {
+                    log.error('Unable to generate build.', err)
+                    process.exit(1)
+                })
         }
     })
     .option('serverCmd', {
